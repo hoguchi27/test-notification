@@ -1,0 +1,16 @@
+node_modules/
+dist/
+
+# wrangler / vite がローカル D1（SQLite）を保存する場所。
+# 開発中に登録したユーザー名・メールアドレスが入るので、絶対にコミットしない
+.wrangler/
+
+# ローカル用の秘密情報（API キーなど）
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+.env
+.env.*
+
+*.log
+.DS_Store
