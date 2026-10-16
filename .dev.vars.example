@@ -1,0 +1,2 @@
+# ローカル開発用の環境変数（wrangler.jsonc の vars を上書きする）
+APP_URL=http://localhost:5173

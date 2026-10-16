@@ -39,6 +39,7 @@ WSL では Ubuntu 22.04 以降を使ってください（Ubuntu 20.04 では起�
 
 ```bash
 npm install
+cp .dev.vars.example .dev.vars   # ローカル用の APP_URL（http://localhost:5173）
 npm run db:migrate:local   # ローカルの D1 にテーブルを作る（.wrangler/ 以下に保存される）
 npm run dev                # http://localhost:5173
 ```
@@ -131,13 +132,13 @@ git ls-files | grep -E '\.wrangler|\.dev\.vars|\.sqlite'   # 何も出なけれ�
 
 ```bash
 npx wrangler login
-npx wrangler d1 create approval-sample      # 表示された database_id を wrangler.jsonc に書く
+npx wrangler d1 create test-notification-db # 表示された database_id を wrangler.jsonc に書く
 npm run db:migrate:remote
 npm run deploy
 ```
 
-デプロイ後に、ダッシュボードで環境変数 `APP_URL` を `https://<your-worker>.workers.dev` などの公開 URL に変更してください
-（メール内のリンクと CSRF チェックに使います）。
+デプロイの前に、[wrangler.jsonc](wrangler.jsonc) の `APP_URL` を公開 URL（`https://<name>.<サブドメイン>.workers.dev`）にしておいてください
+（メール内のリンクと CSRF チェックに使います）。ダッシュボードで変更しても、`npm run deploy` のたびに wrangler.jsonc の値に戻ります。
 
 > [!WARNING]
 > 今のままデプロイすると、メールの代わりにログインリンクが Workers のログに出力されます。

@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "approval-notification-sample",
+  "name": "test-notification",
   "main": "./src/worker/index.ts",
   "compatibility_date": "2025-05-01",
   "observability": { "enabled": true },
@@ -12,15 +12,16 @@
   // 送信に失敗した通知メールを定期的に再送する
   "triggers": { "crons": ["*/5 * * * *"] },
   "vars": {
-    // メール内リンクのベース URL。本番では Cloudflare のダッシュボードなどで上書きする
-    "APP_URL": "http://localhost:5173"
+    // メール内リンクと CSRF チェックに使う本番の URL。
+    // ローカル開発では .dev.vars の APP_URL=http://localhost:5173 で上書きする
+    "APP_URL": "https://test-notification.haruka-oguchi.workers.dev"
   },
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "approval-sample",
-      // `wrangler d1 create approval-sample` で表示された ID に置き換える（秘密情報ではない）
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_name": "test-notification-db",
+      // `wrangler d1 create test-notification-db` で表示された ID（秘密情報ではない）
+      "database_id": "28ce6f4c-4658-4d33-952d-c2bb234f278e",
       "migrations_dir": "migrations"
     }
   ]
