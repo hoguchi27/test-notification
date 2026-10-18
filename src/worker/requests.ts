@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import type { ApprovalRequest, RequestStatus } from "../shared/types";
+import { canApprove, type ApprovalRequest, type RequestStatus } from "../shared/types";
 import type { AppEnv } from "./env";
 import { deliverPending, enqueueMail } from "./outbox";
 
@@ -57,7 +57,11 @@ requestRoutes.post("/", async (c) => {
   if (b.length > 2000) return c.json({ error: "内容は 2000 文字以内で入力してください" }, 400);
   if (!approverId || approverId === me.id) return c.json({ error: "自分以外の承認者を選択してください" }, 400);
 
-  const approver = await c.env.DB.prepare("SELECT id, username, email FROM users WHERE id = ?")
+  // 承認できるロールの、利用中のユーザーだけを承認者にできる
+  const approver = await c.env.DB.prepare(
+    `SELECT id, username, email FROM users
+     WHERE id = ? AND role IN ('approver', 'admin') AND password_hash IS NOT NULL AND disabled_at IS NULL`,
+  )
     .bind(approverId)
     .first<{ id: string; username: string; email: string }>();
   if (!approver) return c.json({ error: "承認者が見つかりません" }, 400);
@@ -88,6 +92,8 @@ requestRoutes.post("/:id/decision", async (c) => {
   const me = c.get("user");
   const id = c.req.param("id");
   const { decision, comment } = await c.req.json<{ decision?: string; comment?: string }>();
+  // 承認者に指定されたあとで一般ユーザーに変更された場合は、承認 / 却下できない
+  if (!canApprove(me.role)) return c.json({ error: "承認する権限がありません" }, 403);
   if (decision !== "approved" && decision !== "rejected") return c.json({ error: "decision が不正です" }, 400);
   const note = comment?.trim() || null;
   if (note && note.length > 1000) return c.json({ error: "コメントは 1000 文字以内で入力してください" }, 400);

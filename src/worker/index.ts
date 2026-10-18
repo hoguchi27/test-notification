@@ -3,6 +3,7 @@ import { csrf } from "hono/csrf";
 import type { Notification, UserSummary } from "../shared/types";
 import type { AppEnv, Env } from "./env";
 import { authRoutes, requireUser } from "./auth";
+import { adminRoutes } from "./admin";
 import { requestRoutes } from "./requests";
 import { deliverPending } from "./outbox";
 
@@ -18,12 +19,17 @@ app.use("/users", requireUser);
 app.use("/notifications", requireUser);
 app.use("/requests/*", requireUser);
 app.use("/requests", requireUser);
+app.use("/admin/*", requireUser);
 
 app.get("/me", (c) => c.json(c.get("user")));
 
-// 承認者を選ぶための一覧。他人のメールアドレスは返さない
+// 承認者を選ぶための一覧。承認できるロールの、利用中のユーザーだけを返す。他人のメールアドレスは返さない
 app.get("/users", async (c) => {
-  const { results } = await c.env.DB.prepare("SELECT id, username FROM users WHERE id != ? ORDER BY username")
+  const { results } = await c.env.DB.prepare(
+    `SELECT id, username FROM users
+     WHERE id != ? AND role IN ('approver', 'admin') AND password_hash IS NOT NULL AND disabled_at IS NULL
+     ORDER BY username`,
+  )
     .bind(c.get("user").id)
     .all<UserSummary>();
   return c.json(results);
@@ -41,6 +47,7 @@ app.get("/notifications", async (c) => {
 });
 
 app.route("/requests", requestRoutes);
+app.route("/admin", adminRoutes);
 
 app.onError((err, c) => {
   console.error(err);

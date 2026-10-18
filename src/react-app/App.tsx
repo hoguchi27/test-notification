@@ -2,15 +2,21 @@ import { useCallback, useEffect, useState } from "react";
 import type { Me } from "../shared/types";
 import { api, ApiError } from "./api";
 import { LoginPage } from "./pages/LoginPage";
-import { VerifyPage } from "./pages/VerifyPage";
+import { SetPasswordPage } from "./pages/SetPasswordPage";
+import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
 import { DashboardPage } from "./pages/DashboardPage";
+import { AdminUsersPage } from "./pages/AdminUsersPage";
 
 export function App() {
   // ページ数が少ないのでルーターは使わず、パスで切り替える
-  if (window.location.pathname === "/verify") {
-    return <VerifyPage />;
+  switch (window.location.pathname) {
+    case "/set-password":
+      return <SetPasswordPage />;
+    case "/forgot-password":
+      return <ForgotPasswordPage />;
+    default:
+      return <Home />;
   }
-  return <Home />;
 }
 
 function Home() {
@@ -32,6 +38,10 @@ function Home() {
 
   if (error) return <main className="container"><p className="error">{error}</p></main>;
   if (me === undefined) return <main className="container"><p>読み込み中...</p></main>;
-  if (me === null) return <LoginPage />;
+  if (me === null) return <LoginPage onLoggedIn={loadMe} />;
+  // 管理者以外が /admin を開いた場合は通常の画面を出す（API 側でも 403 にしている）
+  if (window.location.pathname === "/admin" && me.role === "admin") {
+    return <AdminUsersPage me={me} onLogout={() => setMe(null)} />;
+  }
   return <DashboardPage me={me} onLogout={() => setMe(null)} />;
 }

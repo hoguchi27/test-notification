@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
-import type { ApprovalRequest, Me, Notification, RequestsResponse, RequestStatus, UserSummary } from "../../shared/types";
+import { canApprove, type ApprovalRequest, type Me, type Notification, type RequestsResponse, type RequestStatus, type UserSummary } from "../../shared/types";
 import { api, formatDate } from "../api";
+import { AppHeader } from "../AppHeader";
 
 const STATUS_LABEL: Record<RequestStatus, string> = {
   pending: "承認待ち",
@@ -35,24 +36,9 @@ export function DashboardPage({ me, onLogout }: Props) {
     reload();
   }, [reload]);
 
-  async function handleLogout() {
-    await api("/auth/logout", { method: "POST" });
-    onLogout();
-  }
-
   return (
     <main className="container">
-      <header className="header">
-        <h1>承認通知サンプル</h1>
-        <div>
-          <span className="me">
-            {me.username}（{me.email}）
-          </span>
-          <button className="secondary" onClick={handleLogout}>
-            ログアウト
-          </button>
-        </div>
-      </header>
+      <AppHeader me={me} onLogout={onLogout} />
       {error && <p className="error">{error}</p>}
 
       <div className="grid">
@@ -63,8 +49,12 @@ export function DashboardPage({ me, onLogout }: Props) {
         </section>
 
         <section>
-          <h2>あなたが承認する申請</h2>
-          <RequestList items={requests.toApprove} empty="承認依頼はありません" onDecided={reload} />
+          {canApprove(me.role) && (
+            <>
+              <h2>あなたが承認する申請</h2>
+              <RequestList items={requests.toApprove} empty="承認依頼はありません" onDecided={reload} />
+            </>
+          )}
           <h2>あなた宛ての通知メール</h2>
           <NotificationList items={notifications} />
         </section>
@@ -119,7 +109,7 @@ function NewRequestForm({ users, onCreated }: { users: UserSummary[]; onCreated:
         </select>
       </label>
       {users.length === 0 && (
-        <p className="hint">承認者がいません。別のブラウザ（シークレットウィンドウなど）で別のユーザーを登録してください。</p>
+        <p className="hint">選べる承認者がいません。管理者に、承認者ロールのユーザーの追加を依頼してください。</p>
       )}
       {error && <p className="error">{error}</p>}
       <button type="submit" disabled={busy}>

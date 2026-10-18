@@ -10,6 +10,8 @@
     "typecheck": "tsc -b",
     "db:migrate:local": "wrangler d1 migrations apply DB --local",
     "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
+    "admin:create:local": "node scripts/create-admin.mjs --local",
+    "admin:create:remote": "node scripts/create-admin.mjs --remote",
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {

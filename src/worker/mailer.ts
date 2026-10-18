@@ -12,7 +12,7 @@ export interface Mailer {
 }
 
 // 開発用: 実際には送らず、内容をコンソール（wrangler / vite のログ）に出すだけ。
-// ログイン用リンクもそのまま出力されるので、本番では使わないこと
+// 招待リンクやログイン確認コードもそのまま出力されるので、本番では使わないこと
 export class ConsoleMailer implements Mailer {
   async send(mail: Mail): Promise<void> {
     console.log(

@@ -204,3 +204,59 @@ button.danger {
 summary {
   cursor: pointer;
 }
+
+.title-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+a {
+  color: var(--primary);
+}
+
+.notice {
+  color: var(--ok);
+}
+
+.badge.invited {
+  color: var(--warn);
+}
+
+.badge.active {
+  color: var(--ok);
+}
+
+.badge.disabled {
+  color: var(--muted);
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card);
+  border: 1px solid var(--border);
+}
+
+.table th,
+.table td {
+  padding: 8px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.table .actions {
+  display: flex;
+  gap: 8px;
+}
